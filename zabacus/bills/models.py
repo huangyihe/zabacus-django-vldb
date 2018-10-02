@@ -5,10 +5,12 @@ from enum import Enum
 
 # Create your models here.
 
+
 class BillStatus(Enum):
     OPN = 'open'
     STL = 'settled'
     DIS = 'dispute'
+
 
 class Bill(models.Model):
     name = models.CharField(max_length=255)
@@ -21,7 +23,7 @@ class Bill(models.Model):
     )
     people = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
-        related_name='invloved',
+        related_name='involved',
         through='Involvement',
         through_fields=('bill', 'user'),
     )
@@ -32,6 +34,7 @@ class Bill(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class BillItem(models.Model):
     name = models.CharField(max_length=255)
@@ -58,9 +61,11 @@ class BillItem(models.Model):
     def __str__(self):
         return self.name
 
+
 class Involvement(models.Model):
     bill = models.ForeignKey(Bill, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
 
 class ItemWeightAssignment(models.Model):
     item = models.ForeignKey(BillItem, related_name='assignments', on_delete=models.CASCADE)
