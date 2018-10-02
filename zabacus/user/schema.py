@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 import graphene
 from graphql import GraphQLError
 from graphene_django import DjangoObjectType
+from zabacus.bills.schema import get_auth_user
 
 
 class UserType(DjangoObjectType):
@@ -33,15 +34,48 @@ class CreateUser(graphene.Mutation):
         return CreateUser(user=user)
 
 
+class UpdateUser(graphene.Mutation):
+    user = graphene.Field(UserType)
+
+    class Arguments:
+        first_name = graphene.String()
+        last_name = graphene.String()
+        old_password = graphene.String()
+        new_password = graphene.String()
+        email = graphene.String()
+
+    def mutate(self, info, **kwargs):
+        user = get_auth_user(info)
+        fn = kwargs.get('first_name')
+        ln = kwargs.get('last_name')
+        em = kwargs.get('email')
+        op = kwargs.get('old_password')
+        np = kwargs.get('new_password')
+        if fn is not None:
+            user.first_name = fn
+        if ln is not None:
+            user.last_name = ln
+        if em is not None:
+            user.email = em
+        if np is not None:
+            if op is None:
+                raise GraphQLError('Please enter old password.')
+            if user.check_password(op):
+                user.set_password(np)
+            else:
+                raise GraphQLError('Incorrect old password.')
+        user.save()
+        return UpdateUser(user=user)
+
+
 class Mutation(graphene.ObjectType):
     create_user = CreateUser.Field()
+    update_user = UpdateUser.Field()
 
 
 class Query(graphene.ObjectType):
     me = graphene.Field(UserType)
 
     def resolve_me(self, info, **kwargs):
-        user = info.context.user
-        if user.is_anonymous:
-            raise GraphQLError('Not logged in!')
+        user = get_auth_user(info)
         return user
