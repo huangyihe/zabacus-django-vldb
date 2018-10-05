@@ -243,6 +243,7 @@ class CreateBill(graphene.Mutation):
 
     class Arguments:
         name = graphene.String(required=True)
+        desc = graphene.String()
         bid = graphene.ID()
 
     def mutate(self, info, name, **kwargs):
@@ -255,6 +256,10 @@ class CreateBill(graphene.Mutation):
             created_by=user,
             status=BillStatus.OPN.name
         )
+        bd = kwargs.get('desc')
+        if bd is not None:
+            new_bill.desc = bd
+
         new_bill.save()
         bid = kwargs.get('bid')
         if bid is not None:
@@ -297,6 +302,7 @@ class UpdateBill(graphene.Mutation):
     class Arguments:
         bid = graphene.ID(required=True)
         name = graphene.String()
+        desc = graphene.String()
         status = graphene.String()
 
     def mutate(self, info, bid, **kwargs):
@@ -306,9 +312,12 @@ class UpdateBill(graphene.Mutation):
         except ObjectDoesNotExist:
             raise GraphQLError('Bill not found.')
         bn = kwargs.get('name')
+        bd = kwargs.get('desc')
         bs = kwargs.get('status')
         if bn is not None:
             bill.name = bn
+        if bd is not None:
+            bill.desc = bd
         if bs is not None:
             bill.status = bs
         bill.save()

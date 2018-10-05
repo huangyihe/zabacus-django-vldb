@@ -14,6 +14,7 @@ class BillStatus(Enum):
 
 class Bill(models.Model):
     name = models.CharField(max_length=255)
+    desc = models.TextField(default='No description.')
     date = models.DateTimeField()
     edited = models.DateTimeField()
     created_by = models.ForeignKey(
