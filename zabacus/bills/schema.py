@@ -4,6 +4,7 @@ from graphql import GraphQLError
 from graphene_django.types import DjangoObjectType
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 import django.utils.timezone as tz
+from django.utils.html import escape
 from django.contrib.auth import get_user_model
 from zabacus.bills.models import Bill, BillItem, Involvement, ItemWeightAssignment, BillStatus
 
@@ -86,8 +87,8 @@ class AddBillItem(graphene.Mutation):
 
         datetime = tz.localtime(tz.now())
         new_item = BillItem.objects.create(
-            name=iname,
-            desc=idesc,
+            name=escape(iname),
+            desc=escape(idesc),
             date=datetime,
             edited=datetime,
             created_by=user,
@@ -152,9 +153,9 @@ class UpdateBillItem(graphene.Mutation):
         it_wei = kwargs.get('weights')
 
         if it_nam is not None:
-            item.name = it_nam
+            item.name = escape(it_nam)
         if it_dec is not None:
-            item.desc = it_dec
+            item.desc = escape(it_dec)
         if it_pyr is not None:
             try:
                 new_payer = bill.people.get(id=it_pyr)
@@ -250,7 +251,7 @@ class CreateBill(graphene.Mutation):
         user = get_auth_user(info)
         datetime = tz.localtime(tz.now())
         new_bill = Bill.objects.create(
-            name=name,
+            name=escape(name),
             date=datetime,
             edited=datetime,
             created_by=user,
@@ -258,7 +259,7 @@ class CreateBill(graphene.Mutation):
         )
         bd = kwargs.get('desc')
         if bd is not None:
-            new_bill.desc = bd
+            new_bill.desc = escape(bd)
 
         new_bill.save()
         bid = kwargs.get('bid')
@@ -315,9 +316,9 @@ class UpdateBill(graphene.Mutation):
         bd = kwargs.get('desc')
         bs = kwargs.get('status')
         if bn is not None:
-            bill.name = bn
+            bill.name = escape(bn)
         if bd is not None:
-            bill.desc = bd
+            bill.desc = escape(bd)
         if bs is not None:
             bill.status = bs
         bill.save()

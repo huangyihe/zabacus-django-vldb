@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.utils.html import escape
 import graphene
 from graphql import GraphQLError
 from graphene_django import DjangoObjectType
@@ -23,10 +24,10 @@ class CreateUser(graphene.Mutation):
 
     def mutate(self, info, username, first_name, last_name, password, email):
         user = get_user_model()(
-            username=username,
-            first_name=first_name,
-            last_name=last_name,
-            email=email
+            username=escape(username),
+            first_name=escape(first_name),
+            last_name=escape(last_name),
+            email=escape(email)
         )
         user.set_password(password)
         user.save()
@@ -52,11 +53,11 @@ class UpdateUser(graphene.Mutation):
         op = kwargs.get('old_password')
         np = kwargs.get('new_password')
         if fn is not None:
-            user.first_name = fn
+            user.first_name = escape(fn)
         if ln is not None:
-            user.last_name = ln
+            user.last_name = escape(ln)
         if em is not None:
-            user.email = em
+            user.email = escape(em)
         if np is not None:
             if op is None:
                 raise GraphQLError('Please enter old password.')
