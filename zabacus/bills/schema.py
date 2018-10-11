@@ -343,7 +343,7 @@ class Query(graphene.ObjectType):
 
     def resolve_list_bills(self, info):
         user = get_auth_user(info)
-        return user.involved.all()
+        return user.involved.all().order_by('-date')
 
     def resolve_created_bills(self, info):
         user = get_auth_user(info)
