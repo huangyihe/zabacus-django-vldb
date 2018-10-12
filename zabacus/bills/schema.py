@@ -32,7 +32,7 @@ def validate_weight_assignment(bill, total, weights):
         assign_total += amount
         validated_weights.append((assignee, amount))
 
-    if assign_total != total:
+    if abs(assign_total - total) >= 0.01:
         raise GraphQLError('Invalid weight assignment (sum mismatch).')
     return validated_weights
 
@@ -188,19 +188,19 @@ class AddUserToBill(graphene.Mutation):
 
     class Arguments:
         bid = graphene.ID(required=True)
-        uid = graphene.ID(required=True)
+        uname = graphene.String(required=True)
 
-    def mutate(self, info, bid, uid):
+    def mutate(self, info, bid, uname):
         user = get_auth_user(info)
         try:
             bill = user.involved.get(id=bid)
         except ObjectDoesNotExist:
             raise GraphQLError('Can not find bill.')
         try:
-            target_user = get_user_model().objects.get(id=uid)
+            target_user = get_user_model().objects.get(username=uname)
         except ObjectDoesNotExist:
             raise GraphQLError('Target user does not exist.')
-        if bill.people.filter(id=uid).exists():
+        if bill.people.filter(username=uname).exists():
             raise GraphQLError('User already in bill.')
 
         new_rel = Involvement.objects.create(bill=bill, user=target_user)
