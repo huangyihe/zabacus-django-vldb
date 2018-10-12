@@ -23,14 +23,14 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if 'DJANGO_SECRET_KEY' in os.environ:
     SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
     print('Nice, set SECRET_KEY from environment variable!')
-    DEBUG_VAL = False
+    DEPLOY = True
 else:
     SECRET_KEY = 't9#b-3)vvk1j-92#3!pto0dudj^wh9pw=kjv+$ma&3w#$9nkfj'
     print('Using default secret key, running in debug mode')
-    DEBUG_VAL = True
+    DEPLOY = False
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = DEBUG_VAL
+DEBUG = not DEPLOY
 
 ALLOWED_HOSTS = []
 
@@ -90,12 +90,28 @@ WSGI_APPLICATION = 'zabacus.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
-DATABASES = {
+MYSQL_DB = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'zabacus',
+        'USER': 'zabacus_user',
+        'PASSWORD': 'SlZBmQHfASNWT6N',
+        'HOST': '/var/run/mysqld/mysqld.sock',
+        'PORT': '3306',
+    }
+}
+
+DEV_DB = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
+if DEPLOY:
+    DATABASES = MYSQL_DB
+else:
+    DATABASES = DEV_DB
 
 
 # Password validation
