@@ -27,6 +27,9 @@ pip install -r requirements.txt
 
 You must create an environment variable `$DJANGO_SECRET_KEY` to run the server in deployment mode.
 
+You must also use an environment variable `$RECAPTCHA_SECRET_KEY` for reCaptcha to work correctly on the production site.
+The default reCaptcha secret key only works for localhost.
+
 MySQL will be used in deployment mode. Credentials should be supplied in `zabacus/settings.py`.
 
 If you want to use the Django admin interface, generate static files by running
