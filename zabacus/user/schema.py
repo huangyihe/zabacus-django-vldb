@@ -1,3 +1,5 @@
+import urllib, json
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils.html import escape
 import graphene
@@ -21,8 +23,25 @@ class CreateUser(graphene.Mutation):
         last_name = graphene.String(required=True)
         password = graphene.String(required=True)
         email = graphene.String(required=True)
+        recaptcha = graphene.String(required=True)
 
-    def mutate(self, info, username, first_name, last_name, password, email):
+    def mutate(self, info, username, first_name, last_name, password, email, recaptcha):
+        if not info.context.user.is_anonymous:
+            raise GraphQLError('Please log out first.')
+        # verify recaptcha first
+        url = 'https://www.google.com/recaptcha/api/siteverify'
+        values = {
+            'secret': settings.GOOGLE_RECAPTCHA_SECRET_KEY,
+            'response': recaptcha
+        }
+        data = urllib.parse.urlencode(values).encode()
+        req = urllib.request.Request(url, data=data)
+        response = urllib.request.urlopen(req)
+        result = json.loads(response.read().decode())
+
+        if not result['success']:
+            raise GraphQLError('reCaptcha verification failed.')
+
         user = get_user_model()(
             username=escape(username),
             first_name=escape(first_name),

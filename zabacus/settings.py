@@ -34,9 +34,10 @@ DEBUG = not DEPLOY
 
 ALLOWED_HOSTS = []
 
-if not DEBUG:
+if DEPLOY:
     ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'api.zabacus.org']
 
+GOOGLE_RECAPTCHA_SECRET_KEY = os.environ.get('RECAPTCHA_SECRET_KEY', '6LeOBnUUAAAAANj3MqpaJWgCeSfpsgCgEwzVVMck')
 
 # Application definition
 
