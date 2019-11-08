@@ -6,7 +6,7 @@ GraphQL backend for ZAbacus application.
 
 Currently using Python 3.6.6. See `requirements.txt` for Python packages.
 
-On Debian/Ubuntu you will probably need to instead some mysqlclient devel headers. You will also need the Python development headers.
+On Debian/Ubuntu you will probably need to install some mysqlclient devel headers. You will also need the Python development headers.
 
 ```bash
 sudo apt install python3.6-dev default-libmysqlclient-dev
