@@ -196,9 +196,10 @@ class BenchmarkRunner:
         time_end = time.time()
         elapsed = time_end - time_begin
         print('Finished.')
-        print('Elapsed time: {}.'.format(str(elapsed)))
-        xput = BenchParams.max_operations / elapsed.total_seconds()
-        print('Througput: {0:.2f} operations/sec.'.format(xput))
+        str_time = time.strftime('%H:%M:%S', time.localtime(elapsed))
+        print('Elapsed time: {}.'.format(str_time))
+        xput = BenchParams.max_operations / elapsed
+        print('Throughput: {0:.2f} operations/sec.'.format(xput))
 
 
 if __name__ == '__main__':
