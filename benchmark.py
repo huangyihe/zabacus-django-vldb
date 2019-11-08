@@ -204,8 +204,14 @@ class BenchmarkRunner:
 
 
 if __name__ == '__main__':
-    print('About to start benchmarking. Please make sure the connected database is empty.')
-    input('Press any key to continue...')
+    print('About to start benchmarking.')
+    print('WARNING: This operation will flush the existing database.')
+    confirmation = input('Continue? (y/n[n])')
+    if confirmation not in ['y', 'Y']:
+        print('Aborted.')
+        exit()
+
+    management.call_command('reset_db', '--noinput')
     management.call_command('migrate')
 
     BenchmarkRunner().run()

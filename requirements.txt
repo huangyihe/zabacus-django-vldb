@@ -1,6 +1,7 @@
 aniso8601==3.0.2
 Django==2.1.2
 django-cors-headers==2.4.0
+django-extensions==2.2.5
 django-graphql-jwt==0.1.13
 graphene==2.1.3
 graphene-django==2.2.0
