@@ -11,6 +11,7 @@ from zabacus.bills.schema import CreateBill, AddBillItem, AddUserToBill
 from abc import ABC, abstractmethod
 import random
 import time
+from datetime import timedelta
 
 
 class BenchParams:
@@ -196,7 +197,7 @@ class BenchmarkRunner:
         time_end = time.time()
         elapsed = time_end - time_begin
         print('Finished.')
-        str_time = time.strftime('%H:%M:%S', time.localtime(elapsed))
+        str_time = str(timedelta(seconds=round(elapsed)))
         print('Elapsed time: {}.'.format(str_time))
         xput = BenchParams.max_operations / elapsed
         print('Throughput: {0:.2f} operations/sec.'.format(xput))
