@@ -2,7 +2,8 @@
 import os
 import django
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "zabacus.settings")
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'zabacus.settings')
+os.environ.setdefault('DJANGO_SECRET_KEY', '!2%a%fw)m((glocz!3y*wh8j_zb#)t65-q(5mqz&mczld8-4eb')
 django.setup()
 
 from django.core import management
@@ -161,51 +162,66 @@ class BenchmarkRunner:
 
     def pre_populate(self):
         # Prepopulate users and bills
+
+        print('>>> Insert initial users.')
         for i in range(BenchParams.num_init_users):
             CreateUserJob(i + 1, self).run()
         assert self.user_count == BenchParams.num_init_users
         self.user_id_gen = self.user_count
 
+        print('>>> Insert initial bills.')
         for i in range(BenchParams.num_init_bills):
             CreateBillJob(self.pick_random_user(), self.pick_num_users(), self.pick_num_items(), self).run()
         assert self.bill_count == BenchParams.num_init_bills
+
+        # Drain the job queue
+        print('>>> Insert initial user-bill relations and bill items.')
+        while self.job_queue:
+            if len(self.job_queue) % 100 == 0:
+                print('>>>>> {} pre-population ops remaining.'.format(len(self.job_queue)))
+            self.job_queue.pop(0).run()
 
     def benchmark(self):
         while self.op_count <= self.max_ops:
             if not self.job_queue:
                 self.add_create_bill_job()
             # Pop job off run queue and run it
-            job = self.job_queue.pop(0)
-            job.run()
+            self.job_queue.pop(0).run()
 
             self.op_count += 1
             if self.op_count % BenchParams.create_bill_every_x_ops == 0:
+                print('>>> Queue CreateBill job at position={}.'.format(len(self.job_queue)))
                 self.add_create_bill_job()
             if self.op_count % BenchParams.create_user_every_x_ops == 0:
                 self.user_id_gen += 1
+                print('>>> Queue CreateUser job at position={}.'.format(len(self.job_queue)))
                 self.append_job(CreateUserJob(self.user_id_gen, self))
 
             if self.op_count % 50 == 0:
-                print('Completed {} operations.'.format(self.op_count))
+                print('>>> Completed {} operations.'.format(self.op_count))
 
     def run(self):
+        time_begin_0 = time.time()
         print('Pre-populating database...')
         self.pre_populate()
         print('Done. Start benchmarking.')
-        time_begin = time.time()
+        time_begin_1 = time.time()
         self.benchmark()
         time_end = time.time()
-        elapsed = time_end - time_begin
+        elapsed0 = time_begin_1 - time_begin_0
+        elapsed1 = time_end - time_begin_1
         print('Finished.')
-        str_time = str(timedelta(seconds=round(elapsed)))
+        str_time = str(timedelta(seconds=round(elapsed0)))
+        print('Pre-population time: {}.'.format(str_time))
+        str_time = str(timedelta(seconds=round(elapsed1)))
         print('Elapsed time: {}.'.format(str_time))
-        xput = BenchParams.max_operations / elapsed
+        xput = BenchParams.max_operations / elapsed1
         print('Throughput: {0:.2f} operations/sec.'.format(xput))
 
 
 if __name__ == '__main__':
     print('About to start benchmarking.')
-    print('WARNING: This operation will flush the existing database.')
+    print('!!!WARNING!!! This operation will destroy the existing database.')
     confirmation = input('Continue? (y/n[n])')
     if confirmation not in ['y', 'Y']:
         print('Aborted.')
