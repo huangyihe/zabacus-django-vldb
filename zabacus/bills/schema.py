@@ -182,6 +182,43 @@ class UpdateBillItem(graphene.Mutation):
         return UpdateBillItem(bill=bill)
 
 
+class BenchmarkUpdateBillName(graphene.Mutation):
+    bill = graphene.Field(BillType)
+
+    class Arguments:
+        bname = graphene.String()
+
+    def mutate(self, info, bname):
+        user = get_auth_user(info)
+        try:
+            bill = user.involved.first()
+        except ObjectDoesNotExist:
+            raise GraphQLError('Bill not found.')
+        bill.name = escape(bname)
+        bill.save()
+        return BenchmarkUpdateBillName(bill=bill)
+
+
+class BenchmarkUpdateBillItemName(graphene.Mutation):
+    bill = graphene.Field(BillType)
+
+    class Arguments:
+        bid = graphene.ID(required=True)
+        iname = graphene.String(required=True)
+
+    def mutate(self, info, name):
+        user = get_auth_user(info)
+        try:
+            bill = user.involved.first()
+            item = bill.items.first()
+        except ObjectDoesNotExist:
+            raise GraphQLError('Item not found.')
+
+        item.name = escape(iname)
+        item.save()
+        return BenchmarkUpdateFirstBillItemNameInBill(bill=bill)
+
+
 # Add/remove a user from a bill
 class AddUserToBill(graphene.Mutation):
     bill = graphene.Field(BillType)
