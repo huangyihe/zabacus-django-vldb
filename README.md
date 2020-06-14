@@ -13,14 +13,27 @@ sudo apt install python3.6-dev default-libmysqlclient-dev
 ```
 
 ```bash
-python3.6 -m venv venv
-pip install -r requirements.txt
+$ python3.6 -m venv venv
+$ pip install -r requirements.txt
+$ sudo apt install mysql-server
+```
+
+## Set up the database (MySQL)
+```bash
+$ sudo mysql
+> drop database if exists zabacus;
+> create database zabacus;
+> create user 'zabacus_user'@'localhost' IDENTIFIED BY 'SlZBmQHfASNWT6N';
+> CTRL+C
+$ export DJANGO_SECRET_KEY="$(python3 secret-key-gen.py)"
 ```
 
 ## Test run
 
-```
-./manage.py runserver
+```bash
+$ ./manage.py makemigrations
+$ ./manage.py migrate
+$ ./manage.py runserver
 ```
 
 ## Deployment notes
