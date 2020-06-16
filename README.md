@@ -25,14 +25,14 @@ $ sudo mysql
 > create database zabacus;
 > create user 'zabacus_user'@'localhost' IDENTIFIED BY 'SlZBmQHfASNWT6N';
 > CTRL+C
-$ export DJANGO_SECRET_KEY="$(python3 secret-key-gen.py)"
+$ ./manage.py makemigrations
+$ ./manage.py migrate
 ```
 
 ## Test run
 
 ```bash
-$ ./manage.py makemigrations
-$ ./manage.py migrate
+$ export DJANGO_SECRET_KEY="$(python3 secret-key-gen.py)"
 $ ./manage.py runserver
 ```
 
